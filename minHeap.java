@@ -80,4 +80,28 @@ public class minHeap {
         downHeap(this.heap, 0, this.numNodes);
         return top;
     }
+
+    public void insert(String input) {
+        if(heap == null) {
+            return;
+        }
+
+        //compare it to the top of the tree
+        //if it is bigger than the head, insert it into the end of the tree
+        //this works okay for my purposes since i'll be alternating between inserting and
+        //popping from the tree
+        String head = heap[0];
+        if(head != null) {
+            this.numNodes++;
+            if(head.compareTo(input) > 0) {
+                //input string is the smaller/preceding string
+                String temp = heap[0];
+                heap[0] = input;
+                heap[numNodes - 1] = temp;
+            } else {
+                heap[numNodes - 1] = input;
+            }
+        }
+    }
+
 }
