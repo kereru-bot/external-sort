@@ -101,6 +101,9 @@ public class minHeap {
             } else {
                 heap[numNodes - 1] = input;
             }
+
+            System.out.println("HEAD IS: " + heap[0]);
+            System.out.println("INPUT IS: " + input);
         }
     }
 

@@ -2,16 +2,29 @@ import java.io.*;
 import java.util.Scanner;
 
 class xSort {
+    static int runSize;
+    static String filename;
+    static int numMerges;
+    static int maxRunningFiles;
+    static File[] files;
+    static Scanner[] scanners;
+    static FileWriter[] writers;
+    static String[] fileReferences;
+    static String[] currentLines;
+    static boolean[] dontReadFile;
+    static int[] fileLinesRead;
+    static int currentRunningFiles;
+
     public static void main(String args[]) {
-        int runSize = Integer.parseInt(args[0]);
-        String filename = args[1];
+        runSize = Integer.parseInt(args[0]);
+        filename = args[1];
         //number of files to be merged on each pass
-        int numMerges = Integer.parseInt(args[2]);
-        int currentRunningFiles = numMerges;
+        numMerges = Integer.parseInt(args[2]);
+        maxRunningFiles = numMerges;
         //file and scanner arrays for the number of merges to do
-        File[] files = new File[numMerges * 2];
-        Scanner[] scanners = new Scanner[numMerges];
-        FileWriter[] writers = new FileWriter[numMerges];
+        files = new File[numMerges * 2];
+        scanners = new Scanner[numMerges];
+        writers = new FileWriter[numMerges];
 
         try {
             File runs = new File(filename);
@@ -51,8 +64,11 @@ class xSort {
                     totalLinesRead += linesRead;
                     linesRead = 0;
                     currentRun++;
-                    if(currentRun > 14) {
+                    if(currentRun == 15) {
                         currentRun = 0;
+                        maxRunningFiles = 15;
+                    } else {
+                        maxRunningFiles = currentRun;
                     }
                 } else {
                     run[linesRead - 1] += "\n";
@@ -81,33 +97,13 @@ class xSort {
                 currFile++;
             }
 
-            currFile = 0;
-            //the top of each run file
-            String[] currentLines = new String[numMerges];
-            String[] fileReferences = new String[numMerges];
-            int[] fileLinesRead = new int[numMerges];
+            //POPULATE MY HEAP TO BE USED HERE
 
-            for(String s : currentLines) {
-                if(scanners[currFile].hasNextLine()) {
-                    currentLines[currFile] = scanners[currFile].nextLine();
-                    fileReferences[currFile] = currentLines[currFile];
-                    System.out.println(fileReferences[currFile]);
-                    fileLinesRead[currFile]++;
-                } else {
-                    if(currFile == 0) {
-                        System.out.println("bug");
-                        return;
-                    }
-                    currentRunningFiles = currFile;
-                    break;
-                }
-                currFile++;
-            }
-
-
-            minHeap heap = new minHeap();
-            heap.createHeap(currentLines,currentRunningFiles);
+            dontReadFile = new boolean[numMerges];
+            minHeap heap = populateHeap();
+            //heap.createHeap(currentLines,currentRunningFiles);
             boolean waitNextRun[] = new boolean[numMerges];
+
             int currentWritingFile = 0;
 
             while(true) {
@@ -115,7 +111,7 @@ class xSort {
                 if(next == null) {
                     System.out.println("next is null");
                     //no more files to read from, move to next file
-                    if(currentRunningFiles == 0) {
+                    if(maxRunningFiles == 0) {
                         System.out.println("here");
                         break;
                     }
@@ -124,15 +120,23 @@ class xSort {
                         System.out.println("or here");
                         currentWritingFile = 0;
                     } else {
-                        System.out.println(currentRunningFiles);
+                       // System.out.println(currentRunningFiles);
                         currentWritingFile++;
                     }
+
+                    heap = populateHeap();
+                    if(heap == null) {
+                        break;
+                    }
+                    next = heap.pop();
                 }
 
                 //check for where the string came from
-                for(int i = 0; i < currentRunningFiles; i++) {
-                    if(next.compareTo(fileReferences[i]) == 0) {
+                for(int i = 0; i < maxRunningFiles; i++) {
+                    System.out.println(i);
+                    if(!dontReadFile[i] && next.compareTo(fileReferences[i]) == 0) {
                         if(!scanners[i].hasNextLine()) {
+                            dontReadFile[i] = true;
                             currentRunningFiles--;
                             break;
                         }
@@ -141,13 +145,16 @@ class xSort {
                             waitNextRun[i] = true;
                             break;
                         }
-
-                        heap.insert(scanners[i].nextLine());
+                        //not working properly
+                        String s = scanners[i].nextLine();
+                        fileReferences[i] = s;
+                        //System.out.print("NEXT IS: " + s);
+                        heap.insert(s);
                         fileLinesRead[i]++;
                     }
                 }
-                //System.out.println(next);
-                writers[currentWritingFile].write(next);
+                System.out.println(next);
+                writers[currentWritingFile].write(next + "\n");
             }
 
 
@@ -161,7 +168,41 @@ class xSort {
         }
     }
 
-    public static void populateHeap() {
+    public static minHeap populateHeap() {
+        int currFile = 0;
+        //the top of each run file
+        currentLines = new String[numMerges];
+        fileReferences = new String[numMerges];
+        fileLinesRead = new int[numMerges];
 
+        for(String s : currentLines) {
+            if(scanners[currFile].hasNextLine()) {
+                currentLines[currFile] = scanners[currFile].nextLine();
+                fileReferences[currFile] = currentLines[currFile];
+                //System.out.println(fileReferences[currFile]);
+                fileLinesRead[currFile]++;
+            } else {
+                if(areRunsRead() == true) {
+                    System.out.println("bug");
+                    return null;
+                }
+                currentRunningFiles = currFile;
+                break;
+            }
+            currFile++;
+        }
+
+        minHeap heap = new minHeap();
+        heap.createHeap(currentLines,currentRunningFiles);
+        return heap;
+    }
+
+    public static boolean areRunsRead() {
+        for(int i = 0; i < maxRunningFiles; i++) {
+            if(dontReadFile[i] == false) {
+                return false;
+            }
+        }
+        return true;
     }
 }
