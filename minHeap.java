@@ -37,6 +37,12 @@ public class minHeap {
     private void downHeap(String[] input, int parent, int numNodes) {
         boolean swapMade = true;
         int smallest = parent;
+        //numNodes = this.numNodes;
+        //System.out.println(input[0]);
+        if(numNodes <= 1) {
+            return;
+        }
+
         while(swapMade) {
             swapMade = false;
             int leftChild = (smallest * 2) + 1;
@@ -70,7 +76,7 @@ public class minHeap {
      * @return The string at the top of the heap
      */
     public String pop() {
-        if(numNodes == 0) {
+        if(this.numNodes == 0) {
             return null;
         }
         String top = this.heap[0];
@@ -91,6 +97,7 @@ public class minHeap {
         //this works okay for my purposes since i'll be alternating between inserting and
         //popping from the tree
         String head = heap[0];
+        //System.out.println("HEAD IS: " + head);
         if(head != null) {
             this.numNodes++;
             if(head.compareTo(input) > 0) {
@@ -102,8 +109,13 @@ public class minHeap {
                 heap[numNodes - 1] = input;
             }
 
-            System.out.println("HEAD IS: " + heap[0]);
-            System.out.println("INPUT IS: " + input);
+            //System.out.println("HEAD IS: " + heap[numNodes - 1]);
+            //System.out.println("INPUT IS: " + heap[numNodes -1]);
+        } else {
+            heap[0] = input;
+            this.numNodes++;
+            //System.out.println("NEW HEAD IS: " + heap[0]);
+            //System.out.println("NUM NODES: " + numNodes);
         }
     }
 

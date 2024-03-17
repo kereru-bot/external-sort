@@ -126,9 +126,12 @@ class xSort {
 
                     heap = populateHeap();
                     if(heap == null) {
+                        System.out.println("BREAKING");
                         break;
                     }
                     next = heap.pop();
+                    System.out.println("NEXT: " + next);
+
                 }
 
                 //check for where the string came from
@@ -148,6 +151,7 @@ class xSort {
                         //not working properly
                         String s = scanners[i].nextLine();
                         fileReferences[i] = s;
+                        //System.out.println(s + " i" + i);
                         //System.out.print("NEXT IS: " + s);
                         heap.insert(s);
                         fileLinesRead[i]++;
@@ -174,26 +178,34 @@ class xSort {
         currentLines = new String[numMerges];
         fileReferences = new String[numMerges];
         fileLinesRead = new int[numMerges];
-
+        int filesReadFrom = 0;
         for(String s : currentLines) {
-            if(scanners[currFile].hasNextLine()) {
-                currentLines[currFile] = scanners[currFile].nextLine();
-                fileReferences[currFile] = currentLines[currFile];
-                //System.out.println(fileReferences[currFile]);
-                fileLinesRead[currFile]++;
-            } else {
-                if(areRunsRead() == true) {
-                    System.out.println("bug");
-                    return null;
+            if(!dontReadFile[currFile]) {
+                if(scanners[currFile].hasNextLine()) {
+                    currentLines[currFile] = scanners[currFile].nextLine();
+                    fileReferences[currFile] = currentLines[currFile];
+                    System.out.println("FILE REF: ");
+                    filesReadFrom++;
+                    System.out.println(fileReferences[currFile]);
+                    fileLinesRead[currFile]++;
+                } else {
+                    if(areRunsRead() == true) {
+                        System.out.println("bug");
+                        return null;
+                    }
+                    //currentRunningFiles = currFile;
+                    break;
                 }
-                currentRunningFiles = currFile;
-                break;
+                currFile++;
             }
-            currFile++;
         }
-
+        //bandaid solution lmao
+        if(filesReadFrom == 0) {
+            return null;
+        }
+        System.out.println("F READ FROM: " + filesReadFrom);
         minHeap heap = new minHeap();
-        heap.createHeap(currentLines,currentRunningFiles);
+        heap.createHeap(currentLines,filesReadFrom);
         return heap;
     }
 
