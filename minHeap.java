@@ -5,7 +5,7 @@ import java.io.*;
  * an array of strings.
  */
 public class minHeap {
-    private String[] heap;
+    private strNode[] heap;
     private int numNodes;
 
     /**
@@ -15,15 +15,33 @@ public class minHeap {
      * @param numNodes The number of nodes (strings) in the array
      * @return A reference to the newly created heap
      */
-    public String[] createHeap(String[] input, int numNodes) {
+    public strNode[] createHeap(String[] strings, File[] files, int numNodes) {
         this.numNodes = numNodes;
         int numParents = numNodes / 2;
-        for(int i = numNodes; i > 0; i--) {
-            //downheap each node, starting at the bottom, until it's sorted
-            downHeap(input, i - 1, numNodes);
+
+        strNode[] nodes = new strNode[strings.length];
+        try {
+            if(files == null) {
+                for(int i = 0; i < strings.length; i++) {
+                    nodes[i] = new strNode(strings[i], null, 0);
+                }
+            } else {
+                for(int i = 0; i < strings.length; i++) {
+                    nodes[i] = new strNode(strings[i],
+                                           new BufferedReader(new FileReader(files[i])),0);
+                }
+            }
+        } catch (Exception ex) {
+
         }
-        this.heap = input;
-        return input;
+
+        for(int i = numNodes; i > 0; i--) {
+
+            //downheap each node, starting at the bottom, until it's sorted
+            downHeap(nodes, i - 1, numNodes);
+        }
+        this.heap = nodes;
+        return nodes;
     }
 
     /**
@@ -34,7 +52,7 @@ public class minHeap {
      * @param parent The parent node to downheap
      * @param numNodes The number of nodes in the array
      */
-    private void downHeap(String[] input, int parent, int numNodes) {
+    private void downHeap(strNode[] input, int parent, int numNodes) {
         boolean swapMade = true;
         int smallest = parent;
         //numNodes = this.numNodes;
@@ -49,20 +67,20 @@ public class minHeap {
             int rightChild = (smallest * 2) + 2;
 
             if(leftChild <= numNodes - 1 &&
-               input[smallest].compareTo(input[leftChild]) > 0) {
+               input[smallest].string.compareTo(input[leftChild].string) > 0) {
                 smallest = leftChild;
                 swapMade = true;
             }
 
             if(rightChild <= numNodes - 1 &&
-               input[smallest].compareTo(input[rightChild]) > 0) {
+               input[smallest].string.compareTo(input[rightChild].string) > 0) {
                 smallest = rightChild;
                 swapMade = true;
             }
 
             if(smallest != parent) {
                 //swap the smallest node with it's parent
-                String temp = input[smallest];
+                strNode temp = input[smallest];
                 input[smallest] = input[parent];
                 input[parent] = temp;
                 parent = smallest;
@@ -79,9 +97,9 @@ public class minHeap {
         if(this.numNodes == 0) {
             return null;
         }
-        String top = this.heap[0];
-        this.heap[0] = this.heap[this.numNodes - 1];
-        this.heap[this.numNodes - 1] = null;
+        String top = this.heap[0].string;
+        this.heap[0].string = this.heap[this.numNodes - 1].string;
+        this.heap[this.numNodes - 1].string = null;
         this.numNodes--;
         downHeap(this.heap, 0, this.numNodes);
         return top;
@@ -96,24 +114,24 @@ public class minHeap {
         //if it is bigger than the head, insert it into the end of the tree
         //this works okay for my purposes since i'll be alternating between inserting and
         //popping from the tree
-        String head = heap[0];
+        String head = heap[0].string;
         //System.out.println("HEAD IS: " + head);
         if(head != null) {
             this.numNodes++;
             if(head.compareTo(input) > 0) {
                 //input string is the smaller/preceding string
-                String temp = heap[0];
-                heap[0] = input;
-                heap[numNodes - 1] = temp;
+                String temp = heap[0].string;
+                heap[0].string = input;
+                heap[numNodes - 1].string = temp;
             } else {
                 //System.out.println(numNodes);
-                heap[numNodes - 1] = input;
+                heap[numNodes - 1].string = input;
             }
 
             //System.out.println("HEAD IS: " + heap[numNodes - 1]);
             //System.out.println("INPUT IS: " + heap[numNodes -1]);
         } else {
-            heap[0] = input;
+            heap[0].string = input;
             this.numNodes++;
             //System.out.println("NEW HEAD IS: " + heap[0]);
             //System.out.println("NUM NODES: " + numNodes);

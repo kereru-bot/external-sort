@@ -28,7 +28,7 @@ class MakeRuns {
                 if(linesRead == runSize || !reader.hasNextLine()) {
                     heap = new minHeap();
                     //sort the run
-                    String[] output = heap.createHeap(run, linesRead);
+                    heap.createHeap(run, null, linesRead);
                     String next = "";
                     while((next = heap.pop()) != null) {
                         System.out.println(next);
