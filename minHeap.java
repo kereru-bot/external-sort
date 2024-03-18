@@ -106,6 +106,7 @@ public class minHeap {
                 heap[0] = input;
                 heap[numNodes - 1] = temp;
             } else {
+                //System.out.println(numNodes);
                 heap[numNodes - 1] = input;
             }
 

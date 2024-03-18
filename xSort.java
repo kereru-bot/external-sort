@@ -155,6 +155,7 @@ class xSort {
                         //System.out.print("NEXT IS: " + s);
                         heap.insert(s);
                         fileLinesRead[i]++;
+                        break;
                     }
                 }
                 System.out.println(next);
