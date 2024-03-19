@@ -19,19 +19,21 @@ class MakeRuns {
         try {
             Scanner reader = new Scanner(file);
             String[] run = new String[runSize];
-
+            strNode[] nodes = new strNode[runSize];
             minHeap heap;
             int linesRead = 0;
             while(reader.hasNextLine()) {
-                run[linesRead] = reader.nextLine();
+
+                String s = reader.nextLine();
+                nodes[linesRead] = new strNode(s,null,0);
                 linesRead++;
                 if(linesRead == runSize || !reader.hasNextLine()) {
                     heap = new minHeap();
                     //sort the run
-                    heap.createHeap(run, null, linesRead);
-                    String next = "";
+                    heap.createHeap(nodes,linesRead);
+                    strNode next = null;
                     while((next = heap.pop()) != null) {
-                        System.out.println(next);
+                        System.out.println(next.string);
                     }
                     linesRead = 0;
                }

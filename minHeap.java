@@ -15,25 +15,9 @@ public class minHeap {
      * @param numNodes The number of nodes (strings) in the array
      * @return A reference to the newly created heap
      */
-    public strNode[] createHeap(String[] strings, File[] files, int numNodes) {
+    public strNode[] createHeap(strNode[] nodes, int numNodes) {
         this.numNodes = numNodes;
         int numParents = numNodes / 2;
-
-        strNode[] nodes = new strNode[strings.length];
-        try {
-            if(files == null) {
-                for(int i = 0; i < strings.length; i++) {
-                    nodes[i] = new strNode(strings[i], null, 0);
-                }
-            } else {
-                for(int i = 0; i < strings.length; i++) {
-                    nodes[i] = new strNode(strings[i],
-                                           new BufferedReader(new FileReader(files[i])),0);
-                }
-            }
-        } catch (Exception ex) {
-
-        }
 
         for(int i = numNodes; i > 0; i--) {
 
@@ -66,6 +50,8 @@ public class minHeap {
             int leftChild = (smallest * 2) + 1;
             int rightChild = (smallest * 2) + 2;
 
+            //System.out.println(numNodes);
+            //System.out.println(input[leftChild]);
             if(leftChild <= numNodes - 1 &&
                input[smallest].string.compareTo(input[leftChild].string) > 0) {
                 smallest = leftChild;
@@ -93,19 +79,19 @@ public class minHeap {
      * places the next appropriate string at the top.
      * @return The string at the top of the heap
      */
-    public String pop() {
+    public strNode pop() {
         if(this.numNodes == 0) {
             return null;
         }
-        String top = this.heap[0].string;
-        this.heap[0].string = this.heap[this.numNodes - 1].string;
-        this.heap[this.numNodes - 1].string = null;
+        strNode top = this.heap[0];
+        this.heap[0] = this.heap[this.numNodes - 1];
+        this.heap[this.numNodes - 1] = null;
         this.numNodes--;
         downHeap(this.heap, 0, this.numNodes);
         return top;
     }
 
-    public void insert(String input) {
+    public void insert(strNode input) {
         if(heap == null) {
             return;
         }
@@ -114,24 +100,25 @@ public class minHeap {
         //if it is bigger than the head, insert it into the end of the tree
         //this works okay for my purposes since i'll be alternating between inserting and
         //popping from the tree
-        String head = heap[0].string;
+        //System.out.println(heap[0].string);
+        strNode head = heap[0];
         //System.out.println("HEAD IS: " + head);
         if(head != null) {
             this.numNodes++;
-            if(head.compareTo(input) > 0) {
+            if(head.string.compareTo(input.string) > 0) {
                 //input string is the smaller/preceding string
-                String temp = heap[0].string;
-                heap[0].string = input;
-                heap[numNodes - 1].string = temp;
+                strNode temp = heap[0];
+                heap[0] = input;
+                heap[numNodes - 1] = temp;
             } else {
                 //System.out.println(numNodes);
-                heap[numNodes - 1].string = input;
+                heap[numNodes - 1] = input;
             }
 
             //System.out.println("HEAD IS: " + heap[numNodes - 1]);
             //System.out.println("INPUT IS: " + heap[numNodes -1]);
         } else {
-            heap[0].string = input;
+            heap[0] = input;
             this.numNodes++;
             //System.out.println("NEW HEAD IS: " + heap[0]);
             //System.out.println("NUM NODES: " + numNodes);
