@@ -46,11 +46,13 @@ class xSort {
               //      }
              //   }
                 if(maxFiles == 1) {
-                    while(maxFiles == 1) {
+                    BufferedReader reader = new BufferedReader(new FileReader("r_0"));
+                    String next;
+                    while((next = reader.readLine()) != null) {
+                    //write file 1 from the right side
+                        System.out.println(next);
 
                     }
-                    //write file 1 from the right side
-                    System.out.println("DONE");
                     return;
                 } else {
                     for(int i = 0; i < mergesPerPass; i++) {
@@ -60,16 +62,18 @@ class xSort {
                         left[i].deleteOnExit();
                     }
                 }
-                System.out.println(maxFiles);
+                //System.out.println(maxFiles);
 
 
                 maxFiles = merge(totalRunSize, right, left, maxFiles);
-                if(maxFiles == 1) {
-                    //write from file 1 on the left side
-                    while(maxFiles == 1) {
 
+                    //write from file 1 on the left side
+                if(maxFiles == 1) {
+                    BufferedReader reader = new BufferedReader(new FileReader("l_0"));
+                    String next;
+                    while((next = reader.readLine()) != null) {
+                        System.out.println(next);
                     }
-                    System.out.println("DONE");
                     return;
                 } else {
                     for(int i = 0; i < mergesPerPass; i++) {
