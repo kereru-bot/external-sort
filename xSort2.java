@@ -3,8 +3,6 @@ import java.util.Scanner;
 
 class xSort2 {
 
-
-
     public static void main(String args[]) {
         int runSize = Integer.parseInt(args[0]);
         String filename = args[1];

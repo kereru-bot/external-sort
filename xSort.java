@@ -26,24 +26,29 @@ class xSort {
         }
 
         int maxFiles = distributeRuns(left, filename, totalRunSize);
-       // int i = 1;
-       // while(true) {
-      //      if(i == 0) {
-       //         break;
-       //     }
-
-        //}
+       //int j = 1;
+        //while(true) {
+         //   if(j == 0) {
+          //      break;
+         //  }
+       // }
         while(true) {
             try {
                 maxFiles = merge(totalRunSize, left, right, maxFiles);
                 //int j = 1;
                 //while(true) {
-                //    if(j == 0) {
-               //         break;
+               //     if(maxFiles == -1) {
+               //         System.out.println("true");
                 //    }
-               // }
-                if(maxFiles == 0) {
+               //     if(j == 0) {
 
+                 //       break;
+              //      }
+             //   }
+                if(maxFiles == 1) {
+                    while(maxFiles == 1) {
+
+                    }
                     //write file 1 from the right side
                     System.out.println("DONE");
                     return;
@@ -59,9 +64,9 @@ class xSort {
 
 
                 maxFiles = merge(totalRunSize, right, left, maxFiles);
-                if(maxFiles == 0) {
+                if(maxFiles == 1) {
                     //write from file 1 on the left side
-                    while(maxFiles == 0) {
+                    while(maxFiles == 1) {
 
                     }
                     System.out.println("DONE");
@@ -84,18 +89,25 @@ class xSort {
 
     //return max files written to
     public static int merge(int runSize, File[] reading, File[] writing, int maxFiles) {
+        //System.out.println(maxFiles);
         minHeap heap = populateHeap(reading, maxFiles);
+        FileWriter[] writers =  new FileWriter[maxFiles];
         boolean stillReading = true;
         int currReading = 0;
         int currWriting = 0;
         int numTempNodes = 0;
-        int numWrittenFiles = 0;
+        int numWrittenFiles = 1;
         minHeap tempHeap;
         strNode[] tempNodes = new strNode[maxFiles];
-
+        //boolean firstLine = true;
+        boolean[] notFirstLine = new boolean[maxFiles];
         try {
-            FileWriter writer = new FileWriter(writing[currWriting], true);
+            for(int i = 0; i < writers.length; i++) {
+                writers[i] = new FileWriter(writing[i]);
+            }
+            //FileWriter writer = new FileWriter(writing[currWriting], true);
             while(stillReading) {
+                //System.out.println(currReading);
                 strNode next = heap.pop();
                 if(next == null) {
                     //nothing left in the heap, check tempnodes
@@ -105,16 +117,16 @@ class xSort {
                         //System.out.println(nodes.length);
                         for(int i = 0; i < tempNodes.length; i++) {
                             if(tempNodes[i] != null) {
-                                System.out.println("READING");
+                                //System.out.println("READING");
                                 nodes[numTempNodes - 1] = tempNodes[i];
-                                nodes[numTempNodes - 1].string = nodes[numTempNodes - 1].reader.readLine();
+                                //nodes[numTempNodes - 1].string = nodes[numTempNodes - 1].reader.readLine();
                                 //System.out.println(nodes[numTempNodes - 1].string == null);
                                 numTempNodes--;
-                                System.out.println("MADE IT");
+                                //System.out.println("MADE IT");
                             }
                         }
                         for(strNode node : nodes) {
-                            System.out.println(node);
+                            //System.out.println(node);
                         }
                         heap = new minHeap();
                         heap.createHeap(nodes,nodes.length);
@@ -122,46 +134,68 @@ class xSort {
                         currReading = 0;
                         currWriting++;
                         numWrittenFiles++;
-                        writer.close();
+                        //writer.close();
                         if(currWriting == maxFiles) {
-                            numWrittenFiles = maxFiles;
+                            //System.out.println("this is okay " + maxFiles);
+                            //numWrittenFiles = maxFiles;
                             currWriting = 0;
+                            //firstPass = false;
                         }
-                        writer = new FileWriter(writing[currWriting]);
+
+                        //if(!firstPass) {
+                        //    writers[currWriting].write("\n");
+                        //}
+                        //writer = new FileWriter(writing[currWriting]);
                     } else {
                         //merging must be done
-                        writer.close();
+                       // writer.close();
+                        //System.out.println(totalRunSize);
                         totalRunSize *= maxFiles;
+                        for(int i = 0; i < writers.length; i++) {
+                            writers[i].close();
+                        }
+
+                        if(numWrittenFiles > maxFiles) {
+                            numWrittenFiles = maxFiles;
+                        }
+                        //System.out.println(maxFiles);
                         return numWrittenFiles;
                     }
                 } else {
                     //System.out.println(next.string);
-                    writer.write(next.string);
+                    if(notFirstLine[currWriting]) {
+                        writers[currWriting].write("\n");
+                    }
+                    writers[currWriting].write(next.string);
+                    notFirstLine[currWriting] = true;
                     next.linesRead++;
                     if(next.linesRead == runSize) {
-                        writer.write("\n");
+                        //writer.write("\n");
                         //System.out.println("READING");
                         next.string = next.reader.readLine();
                         //System.out.println("MADE IT");
                         if(next.string != null) {
                             tempNodes[currReading] = next;
                             numTempNodes++;
+                            //System.out.println(currReading);
                             currReading++;
                             next.linesRead = 0;
                         } else {
-                            System.out.println("WHY HERE?");
+                            //System.out.println("WHY HERE?");
                             next.reader.close();
                         }
                         //store node to be used again next run
                     } else {
                         next.string = next.reader.readLine();
                         if(next.string == null) {
-                            System.out.println("CLOSE HERE");
+                            //writers[currWriting].write("\n");
+                            //System.out.println("CLOSE HERE");
                             next.reader.close();
+                            //System.out.println(currReading);
                             //end of file, no need to do anything
                             currReading++;
                         } else {
-                            writer.write("\n");
+                            //writers[currWriting].write("\n");
                             heap.insert(next);
                         }
                     }
@@ -190,15 +224,17 @@ class xSort {
             int currFile = 0;
             int maxFiles = 1;
             boolean newLine = false;
+            boolean firstPass = true;
             for(int i = 0; i < files.length; i++) {
                 writers[i] = new FileWriter(files[i]);
             }
+
 
             while((next = reader.readLine()) != null) {
                 //if(next.compareTo("\n") == 0) {
                 //    newLine = true;
                 //}
-                writers[currFile].write(next + "\n");
+                writers[currFile].write(next);
 
                 linesRead++;
                 if(linesRead == runSize) {
@@ -207,11 +243,15 @@ class xSort {
                     maxFiles++;
                     if(currFile == files.length) {
                         currFile = 0;
+                        firstPass = false;
+                    }
+                    if(!firstPass) {
+                        writers[currFile].write("\n");
                     }
                     //System.out.println(currFile);
                     linesRead = 0;
                 } else {
-                    //writers[currFile].write("\n");
+                    writers[currFile].write("\n");
                     //new line characters on everything but the last line
                     //if(!newLine) {
                     //    writer.write("\n");
