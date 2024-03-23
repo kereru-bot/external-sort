@@ -1,14 +1,27 @@
 import java.io.*;
 
+/*
+ * A class that takes in a file containing runs of strings and sorts them
+ * over a given number of files
+ */
 class xSort {
+    //global variable so the merge function can easily update the runsize after each merge
     public static int totalRunSize;
+
+    /*
+     * @param args Argument one must be the run size of the
+     * runs in the runs file, argument two must be the name
+     * of the file that contains the runs, and argument three
+     * must contain the number of files to runs to be merged
+     * per pass, i.e. 10 will merge runs over 10 different files.
+     */
     public static void main(String args[]) {
         totalRunSize = Integer.parseInt(args[0]);
         String filename = args[1];
         //number of files to be merged on each pass
         int mergesPerPass = Integer.parseInt(args[2]);
-        //file and scanner arrays for the number of merges to do
 
+        //left and right sides to make alternating between reading/writing more clear
         File[] left = new File[mergesPerPass];
         File[] right = new File[mergesPerPass];
 
@@ -26,32 +39,15 @@ class xSort {
         }
 
         int maxFiles = distributeRuns(left, filename, totalRunSize);
-       //int j = 1;
-        //while(true) {
-         //   if(j == 0) {
-          //      break;
-         //  }
-       // }
         while(true) {
             try {
                 maxFiles = merge(totalRunSize, left, right, maxFiles);
-                //int j = 1;
-                //while(true) {
-               //     if(maxFiles == -1) {
-               //         System.out.println("true");
-                //    }
-               //     if(j == 0) {
-
-                 //       break;
-              //      }
-             //   }
                 if(maxFiles == 1) {
+                    //r_0 must contain the sorted strings
                     BufferedReader reader = new BufferedReader(new FileReader("r_0"));
                     String next;
                     while((next = reader.readLine()) != null) {
-                    //write file 1 from the right side
                         System.out.println(next);
-
                     }
                     return;
                 } else {
@@ -62,13 +58,10 @@ class xSort {
                         left[i].deleteOnExit();
                     }
                 }
-                //System.out.println(maxFiles);
-
-
                 maxFiles = merge(totalRunSize, right, left, maxFiles);
 
-                    //write from file 1 on the left side
                 if(maxFiles == 1) {
+                    //l_0 must contain the sorted strings
                     BufferedReader reader = new BufferedReader(new FileReader("l_0"));
                     String next;
                     while((next = reader.readLine()) != null) {
@@ -91,9 +84,17 @@ class xSort {
 
     }
 
-    //return max files written to
+    /**
+     * Merges the reading files into the writing files and returns the number of different files that were
+     * written to
+     * @param runSize The max size of the runs contained in the reading files
+     * @param reading The files that will be read from (the ones that contain the runs)
+     * @param writing The files that the merged runs will be written into
+     * @param maxFiles The maximum number of files to be read from
+     * @return The maximum number of files that were written to, so 3 is returned if 3 files are written to,
+     * or 1 if one file is written to, (this means that the final merge has been completed)
+     *  */
     public static int merge(int runSize, File[] reading, File[] writing, int maxFiles) {
-        //System.out.println(maxFiles);
         minHeap heap = populateHeap(reading, maxFiles);
         FileWriter[] writers =  new FileWriter[maxFiles];
         boolean stillReading = true;
@@ -103,34 +104,23 @@ class xSort {
         int numWrittenFiles = 1;
         minHeap tempHeap;
         strNode[] tempNodes = new strNode[maxFiles];
-        //boolean firstLine = true;
         boolean[] notFirstLine = new boolean[maxFiles];
         try {
             for(int i = 0; i < writers.length; i++) {
                 writers[i] = new FileWriter(writing[i]);
             }
-            //FileWriter writer = new FileWriter(writing[currWriting], true);
             while(stillReading) {
-                //System.out.println(currReading);
                 strNode next = heap.pop();
+                //nothing left in the heap, check tempnodes
                 if(next == null) {
-                    //nothing left in the heap, check tempnodes
-
+                    //if there are temp nodes, merging hasn't finished
                     if(numTempNodes != 0) {
                         strNode[] nodes = new strNode[numTempNodes];
-                        //System.out.println(nodes.length);
                         for(int i = 0; i < tempNodes.length; i++) {
                             if(tempNodes[i] != null) {
-                                //System.out.println("READING");
                                 nodes[numTempNodes - 1] = tempNodes[i];
-                                //nodes[numTempNodes - 1].string = nodes[numTempNodes - 1].reader.readLine();
-                                //System.out.println(nodes[numTempNodes - 1].string == null);
                                 numTempNodes--;
-                                //System.out.println("MADE IT");
                             }
-                        }
-                        for(strNode node : nodes) {
-                            //System.out.println(node);
                         }
                         heap = new minHeap();
                         heap.createHeap(nodes,nodes.length);
@@ -138,22 +128,11 @@ class xSort {
                         currReading = 0;
                         currWriting++;
                         numWrittenFiles++;
-                        //writer.close();
                         if(currWriting == maxFiles) {
-                            //System.out.println("this is okay " + maxFiles);
-                            //numWrittenFiles = maxFiles;
                             currWriting = 0;
-                            //firstPass = false;
                         }
-
-                        //if(!firstPass) {
-                        //    writers[currWriting].write("\n");
-                        //}
-                        //writer = new FileWriter(writing[currWriting]);
                     } else {
-                        //merging must be done
-                       // writer.close();
-                        //System.out.println(totalRunSize);
+                        //merging must be done, declare new max run size
                         totalRunSize *= maxFiles;
                         for(int i = 0; i < writers.length; i++) {
                             writers[i].close();
@@ -162,11 +141,11 @@ class xSort {
                         if(numWrittenFiles > maxFiles) {
                             numWrittenFiles = maxFiles;
                         }
-                        //System.out.println(maxFiles);
                         return numWrittenFiles;
                     }
                 } else {
-                    //System.out.println(next.string);
+                    //make sure a new line character is only written if it isn't the
+                    //first line in the file
                     if(notFirstLine[currWriting]) {
                         writers[currWriting].write("\n");
                     }
@@ -174,56 +153,49 @@ class xSort {
                     notFirstLine[currWriting] = true;
                     next.linesRead++;
                     if(next.linesRead == runSize) {
-                        //writer.write("\n");
-                        //System.out.println("READING");
                         next.string = next.reader.readLine();
-                        //System.out.println("MADE IT");
+                        //store the current node as a temp node
+                        //as there are still strings left in it
                         if(next.string != null) {
                             tempNodes[currReading] = next;
                             numTempNodes++;
-                            //System.out.println(currReading);
                             currReading++;
                             next.linesRead = 0;
                         } else {
-                            //System.out.println("WHY HERE?");
                             next.reader.close();
                         }
-                        //store node to be used again next run
                     } else {
                         next.string = next.reader.readLine();
                         if(next.string == null) {
-                            //writers[currWriting].write("\n");
-                            //System.out.println("CLOSE HERE");
                             next.reader.close();
-                            //System.out.println(currReading);
-                            //end of file, no need to do anything
                             currReading++;
                         } else {
-                            //writers[currWriting].write("\n");
                             heap.insert(next);
                         }
                     }
                 }
-
-                //write lines from reading file to writing file
             }
         } catch (FileNotFoundException ex) {
             System.err.println("FileNotFoundException: " + ex);
-            return -1;
         } catch (IOException ex) {
             System.err.println("IOException: " + ex);
-            return -1;
         }
         return -1;
     }
     
-
+    /**
+     * Distributes all of the runs in the runs file into as many of the given files as it can
+     * @param files The files that the runs will be distributed between
+     * @param filenameRuns The name of the file that contains the runs
+     * @param runSize The size of each run
+     * @return The total number of files that the runs were distributed across, i.e. 5 if the runs only went across
+     *         5 files
+     */
     public static int distributeRuns(File[] files, String filenameRuns, int runSize) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filenameRuns));
             String next;
             FileWriter[] writers = new FileWriter[files.length];
-            //FileWriter writer = new FileWriter(files[0], true);
             int linesRead = 0;
             int currFile = 0;
             int maxFiles = 1;
@@ -233,33 +205,25 @@ class xSort {
                 writers[i] = new FileWriter(files[i]);
             }
 
-
             while((next = reader.readLine()) != null) {
-                //if(next.compareTo("\n") == 0) {
-                //    newLine = true;
-                //}
                 writers[currFile].write(next);
 
                 linesRead++;
                 if(linesRead == runSize) {
-
                     currFile++;
                     maxFiles++;
                     if(currFile == files.length) {
                         currFile = 0;
                         firstPass = false;
                     }
+                    //to avoid writing a new line at the beginning of
+                    //the file
                     if(!firstPass) {
                         writers[currFile].write("\n");
                     }
-                    //System.out.println(currFile);
                     linesRead = 0;
                 } else {
                     writers[currFile].write("\n");
-                    //new line characters on everything but the last line
-                    //if(!newLine) {
-                    //    writer.write("\n");
-                    //}
                 }
             }
             if(maxFiles > files.length) {
@@ -276,9 +240,14 @@ class xSort {
             System.err.println("IOException: " + ex);
         }
         return -1;
-        //now create and return initial heap
     }
 
+    /**
+     * Takes in an array of files and creates a minheap using the first string from each file
+     * @param files The files that will be read from
+     * @param maxFiles The max number of files that can be read from in the array
+     * @return A sorted minheap that contains readers for the given files
+     */
     public static minHeap populateHeap(File[] files, int maxFiles) {
         strNode[] nodes = new strNode[maxFiles];
         minHeap heap = new minHeap();

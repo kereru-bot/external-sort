@@ -20,7 +20,6 @@ public class minHeap {
         int numParents = numNodes / 2;
 
         for(int i = numNodes; i > 0; i--) {
-
             //downheap each node, starting at the bottom, until it's sorted
             downHeap(nodes, i - 1, numNodes);
         }
@@ -39,8 +38,7 @@ public class minHeap {
     private void downHeap(strNode[] input, int parent, int numNodes) {
         boolean swapMade = true;
         int smallest = parent;
-        //numNodes = this.numNodes;
-        //System.out.println(input[0]);
+
         if(numNodes <= 1) {
             return;
         }
@@ -50,8 +48,6 @@ public class minHeap {
             int leftChild = (smallest * 2) + 1;
             int rightChild = (smallest * 2) + 2;
 
-            //System.out.println(numNodes);
-            //System.out.println(input[leftChild]);
             if(leftChild <= numNodes - 1 &&
                input[smallest].string.compareTo(input[leftChild].string) > 0) {
                 smallest = leftChild;
@@ -100,9 +96,7 @@ public class minHeap {
         //if it is bigger than the head, insert it into the end of the tree
         //this works okay for my purposes since i'll be alternating between inserting and
         //popping from the tree
-        //System.out.println(heap[0].string);
         strNode head = heap[0];
-        //System.out.println("HEAD IS: " + head);
         if(head != null) {
             this.numNodes++;
             if(head.string.compareTo(input.string) > 0) {
@@ -111,17 +105,12 @@ public class minHeap {
                 heap[0] = input;
                 heap[numNodes - 1] = temp;
             } else {
-                //System.out.println(numNodes);
                 heap[numNodes - 1] = input;
             }
 
-            //System.out.println("HEAD IS: " + heap[numNodes - 1]);
-            //System.out.println("INPUT IS: " + heap[numNodes -1]);
         } else {
             heap[0] = input;
             this.numNodes++;
-            //System.out.println("NEW HEAD IS: " + heap[0]);
-            //System.out.println("NUM NODES: " + numNodes);
         }
     }
 

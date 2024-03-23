@@ -39,11 +39,9 @@ class MakeRuns {
                }
             }
             reader.close();
-            //System.out.println("Lines read: " + linesRead);
         } catch (FileNotFoundException ex) {
             System.err.println("FileNotFoundException: " + ex);
         }
-        //System.out.flush();
         return;
     }
 
